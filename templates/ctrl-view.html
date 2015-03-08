@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+terUNIFI - Controller info
+{% endblock %}
+
+
+{% block content %}
+<ul>
+{% for ap in ctrl_data.get_aps() %}
+    <li> AP named {{ap['name']}} with MAC {{ap['mac']}} status : {{ap['state']}} </li>
+{% endfor %}
+</ul>
+Raw data:
+{{ctrl_data.get_aps()}}
+{% endblock %}
+
+{% block sidebar %}
+{% endblock %}
