@@ -3,6 +3,7 @@ from terUNIFI import app, db
 from forms import CtrlForm
 from unifi.controller import Controller
 from models import WifiCtrl, WifiAp, Location
+from urlparse import urlparse
 
 
 @app.route('/')
@@ -38,9 +39,11 @@ def ctrl():
 
 
 # Testing Portals
-@app.route('/guest/s/default/')
+@app.route('/guest/s/default/', methods=["GET", "POST"])
 def reroute():
-    return redirect('/portal/portal3')
+    ourl = urlparse(request.url).query
+    full_url = "/portal/portal3/?{}".format(ourl)
+    return redirect(full_url)
 
 
 @app.route('/portal/<ctrl_endpoint>/', methods=["GET", "POST"])
@@ -50,8 +53,8 @@ def portal(ctrl_endpoint):
     ctrl_args = request.query_string
     ap = WifiAp.query.filter_by(ap_mac=ctrl_args_ap)\
         .first_or_404()
-    location = Location.query.get(ap.location_id).first_or_404()
-    return ("Trying to access Controller {} and ap mac is {} <br>AP {} <br> {} <br> {} <br> {}"
+    location = Location.query.get(ap.location_id)
+    return ("Trying to access Controller {} and ap mac is {} <br>AP {} <br> Admixer ID: {} <br> {} "
             .format(wifi_ctrl.id, ctrl_args_ap, ap.location_id, location.
                     admixer_id, ctrl_args))
 
