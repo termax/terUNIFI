@@ -12,6 +12,9 @@ class User(db.Model, UserMixin):
                            nullable=False)
     password_hash = db.Column(db.String)
 
+    def __repr__(self):
+        return '<Name: %r>' % self.username
+
 
 # Company Can have many users
 class Company(db.Model):
@@ -21,6 +24,9 @@ class Company(db.Model):
     users = db.relationship('User', backref='company', lazy='dynamic')
     wifictrls = db.relationship('WifiCtrl', backref='company', lazy='dynamic')
 
+    def __repr__(self):
+        return '<Name: %r>' % self.name
+
 
 class WifiType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -29,15 +35,21 @@ class WifiType(db.Model):
     wifictrls = db.relationship('WifiCtrl', backref='wifi_type',
                                 lazy='dynamic')
 
+    def __repr__(self):
+        return '<Type: {}, v{}>'.format(self.made_by, self.firmvwre)
 
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     endpoint = db.Column(db.String(10))
     description = db.Column(db.String(300))
+    admixer_id = db.Column(db.String)
     wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
                             nullable=False)
     wifi_aps = db.relationship('WifiAp', backref='location', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Name: %r>' % self.name
 
 
 class WifiCtrl(db.Model):
@@ -56,6 +68,9 @@ class WifiCtrl(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'),
                            nullable=False)
 
+    def __repr__(self):
+        return '<Name: %r>' % self.name
+
 
 class WifiAp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,9 +84,14 @@ class WifiAp(db.Model):
     events = db.relationship('Event', backref='wifi_ap',
                              lazy='dynamic')
 
+    def __repr__(self):
+        return '<Name: %r>' % self.name
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=datetime.now)
     ap_id = db.Column(db.Integer, db.ForeignKey('wifi_ap.id'),
                       nullable=False)
+    client_mac = db.Column(db.String(20))
+    event_vars = db.Column(db.String)

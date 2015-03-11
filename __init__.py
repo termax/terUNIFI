@@ -18,6 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['DEBUG'] = True
 db = SQLAlchemy(app)
 
+
 # Configure authentification
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
