@@ -49,7 +49,8 @@ def portal():
     location = Location.query.get(ap.location_id)
     controller = WifiCtrl.query.get(ap.wifi_ctrl_id)
     return ("Device {}, is connected to AP: {} at Location: {} and \
-            Controller: {}".format(device, ap, location.name, controller.name))
+            Controller: {} <br><br> {}"
+            .format(device, ap, location.name, controller.name, ctrl_args))
 
 
 
