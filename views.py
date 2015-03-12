@@ -40,23 +40,17 @@ def ctrl():
 
 # Testing Portals
 @app.route('/guest/s/default/', methods=["GET", "POST"])
-def reroute():
-    ourl = urlparse(request.url).query
-    full_url = "/portal/portal3/?{}".format(ourl)
-    return redirect(full_url)
-
-
-@app.route('/portal/<ctrl_endpoint>/', methods=["GET", "POST"])
-def portal(ctrl_endpoint):
-    wifi_ctrl = WifiCtrl.query.filter_by(endpoint=ctrl_endpoint).first_or_404()
-    ctrl_args_ap = request.args.get('ap')
+def portal():
+    ap_mac = request.args.get('ap')
+    device = request.args.get('id')
     ctrl_args = request.query_string
-    ap = WifiAp.query.filter_by(ap_mac=ctrl_args_ap)\
+    ap = WifiAp.query.filter_by(ap_mac=ap_mac)\
         .first_or_404()
     location = Location.query.get(ap.location_id)
-    return ("Trying to access Controller {} and ap mac is {} <br>AP {} <br> Admixer ID: {} <br> {} "
-            .format(wifi_ctrl.id, ctrl_args_ap, ap.location_id, location.
-                    admixer_id, ctrl_args))
+    controller = WifiCtrl.query.get(ap.wifi_ctrl_id)
+    return ("Device {}, is connected to AP: {} at Location: {} and \
+            Controller: {}".format(device, ap, location.name, controller.name))
+
 
 
 @app.errorhandler(404)
