@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from terUNIFI import app, db
 from forms import CtrlForm
 from unifi.controller import Controller
-from models import WifiCtrl, WifiAp, Location
+from models import WifiCtrl, WifiAp, Location, WifiType
 from urlparse import urlparse
 
 
@@ -48,10 +48,16 @@ def portal():
         .first_or_404()
     location = Location.query.get(ap.location_id)
     controller = WifiCtrl.query.get(ap.wifi_ctrl_id)
+    ctrl_type = WifiType.query.get(controller.type_id)
+    print controller.url, controller.usr, controller.pwd
+    c = Controller(controller.url, controller.usr, controller.pwd,
+                   controller.port, 'v{}'.format(int(ctrl_type.firmware)))
+    c.authorize_guest(ap_mac, 1)
+#    c.restart_ap(ap_mac)c.authorize_guest(device, "1", ap_mac)
     return ("Device {}, is connected to AP: {} at Location: {} and \
-            Controller: {} <br><br> {}"
+            Controller: {} ver {} <br><br> {}"
             .format(device, ap.name, location.name,
-                    controller.name, ctrl_args))
+                    controller.name, ctrl_type.firmware, ctrl_args))
 
 
 

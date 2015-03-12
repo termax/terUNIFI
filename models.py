@@ -36,7 +36,7 @@ class WifiType(db.Model):
                                 lazy='dynamic')
 
     def __repr__(self):
-        return '<Type: {}, v{}>'.format(self.made_by, self.firmvwre)
+        return '<Type: {}, v{}>'.format(self.made_by, self.firmware)
 
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +59,7 @@ class WifiCtrl(db.Model):
     url = db.Column(db.String)
     usr = db.Column(db.String)
     pwd = db.Column(db.String)
+    port = db.Column(db.String(4))
     endpoint = db.Column(db.String(10))
     locations = db.relationship('Location', backref='wifi_ctrl',
                                 lazy='dynamic')
