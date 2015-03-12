@@ -52,7 +52,7 @@ def portal():
     print controller.url, controller.usr, controller.pwd
     c = Controller(controller.url, controller.usr, controller.pwd,
                    controller.port, 'v{}'.format(int(ctrl_type.firmware)))
-    c.authorize_guest(ap_mac, 1)
+    c.authorize_guest(device, 1, 500, 500, 500, ap_mac)
 #    c.restart_ap(ap_mac)c.authorize_guest(device, "1", ap_mac)
     return ("Device {}, is connected to AP: {} at Location: {} and \
             Controller: {} ver {} <br><br> {}"
