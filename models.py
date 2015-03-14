@@ -59,8 +59,9 @@ class WifiCtrl(db.Model):
     url = db.Column(db.String)
     usr = db.Column(db.String)
     pwd = db.Column(db.String)
-    port = db.Column(db.String(4))
+    port = db.Column(db.Integer)
     endpoint = db.Column(db.String(10))
+    ver = db.Column(db.String(2))
     locations = db.relationship('Location', backref='wifi_ctrl',
                                 lazy='dynamic')
     wifi_aps = db.relationship('WifiAp', backref='wifi_ctrl', lazy='dynamic')
@@ -78,7 +79,7 @@ class WifiAp(db.Model):
     name = db.Column(db.String(120))
     ap_mac = db.Column(db.String(20), unique=True)
     usite = db.Column(db.String(20))
-    wifi_ctrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
+    wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
                              nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=False)

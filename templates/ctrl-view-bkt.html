@@ -6,14 +6,18 @@ terUNIFI - Controller info
 
 
 {% block content %}
-{% for ctrl in ctrl_data %}
-Controller {{ctrl}}
+Controller 1
 <ul>
-{% for ap in ctrl %}
+{% for ap in ctrl_data.get_aps() %}
     <li> AP named {{ap['name']}} with MAC {{ap['mac']}} status : {{ap['state']}} </li>
 {% endfor %}
 </ul>
+Controller 2
+<ul>
+{% for ap in ctrl2_data.get_aps() %}
+    <li> AP named {{ap['name']}} with MAC {{ap['mac']}} status : {{ap['state']}} </li>
 {% endfor %}
+</ul>
 {% endblock %}
 
 {% block sidebar %}
