@@ -44,18 +44,18 @@ def ctrl():
 # Adding aps to db
 @app.route('/ctrl-add')
 def ctrl_add():
-    ctrlrs_aps = []
+    ctrlrs = []
     company = Company.query.get(1)
     print company
     ctrl = company.wifictrls[1]
     print ctrl
     c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
-    ctrlrs_aps.append(c.get_aps())
+    ctrlrs = c
     ctrl = company.wifictrls[2]
     print ctrl
     c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
-    ctrlrs_aps.append(c.get_aps())
-    return render_template('ctrl-view.html', ctrl_data=ctrlrs_aps)
+    ctrlrs = c
+    return render_template('ctrl-view.html', ctrl_data=ctrlrs)
 
 
 # Testing Portals

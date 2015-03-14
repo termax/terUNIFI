@@ -9,11 +9,12 @@ terUNIFI - Controller info
 {% for ctrl in ctrl_data %}
 Controller {{ctrl}}
 <ul>
-{% for ap in ctrl %}
+{% for ap in ctrl.get_aps() %}
     <li> AP named {{ap['name']}} with MAC {{ap['mac']}} status : {{ap['state']}} </li>
 {% endfor %}
 </ul>
 {% endfor %}
+</ul>
 {% endblock %}
 
 {% block sidebar %}
