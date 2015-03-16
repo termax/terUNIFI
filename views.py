@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, g
 from terUNIFI import app, db
 from forms import CtrlForm
 from unifi.controller import Controller
@@ -6,7 +6,7 @@ from unifi.controllerv2 import ControllerV2
 from unifi_control import ControllerV
 from models import WifiCtrl, WifiAp, Location, WifiType, Company
 from urlparse import urlparse
-from time import sleep
+
 
 
 @app.route('/')
@@ -14,91 +14,80 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/test')
-def test():
-    return('Test')
-
-
-@app.route('/connect', methods=['GET'])
-def connect():
-    client = request.args
-    for i in client:
-        print ('{} arg: {}'.format(i, client[i]))
-    return ('done')
-
-
-# Testing Unifi Controller
-@app.route('/ctrl', methods=['GET', 'POST'])
-def ctrl():
-    form = CtrlForm()
-    if form.validate_on_submit():
-        url = form.url.data
-        usr = form.usr.data
-        pwd = form.pwd.data
-        ver = form.ver.data
-        c = Controller(url, usr, pwd, ver)
-        return render_template('ctrl-view.html', ctrl1_data=c)
-    return render_template('ctrl.html', form=form)
-
-
 # Adding aps to db
 @app.route('/ctrl-add')
 def ctrl_add():
     ctrlrs = []
     company = Company.query.get(1)
-    print company
-    ctrl = company.wifictrls[1]
-    print ctrl
-    c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
-    ctrlrs = c
-    ctrl = company.wifictrls[2]
-    print ctrl
-    c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
-    ctrlrs = c
+    for ctrl in company.wifictrls:
+        c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
+        for ap in c.get_aps():
+            add_ap = WifiAp(
+                    name=ap['name'],
+                    ap_mac=ap['mac'],
+                    usite="default",
+                    wifictrl_id=ctrl.id,
+                    location_id=ctrl.locations[0].id
+                    )
+            db.session.add(add_ap)
+        ctrlrs.append(c)
+
+    db.session.commit()
     return render_template('ctrl-view.html', ctrl_data=ctrlrs)
 
 
 # Testing Portals
-@app.route('/guest/s/default/', methods=["GET", "POST"])
-def portalv3():
+@app.route('/guest/', methods=["GET", "POST"],
+           defaults={'s':'0', 'unifi_site':''})
+@app.route('/guest/<s>/<unifi_site>/', methods=["GET", "POST"])
+def portal_unifi(s, unifi_site):
     ap_mac = request.args.get('ap')
     device = request.args.get('id')
-    ctrl_args = request.query_string
-    ap = WifiAp.query.filter_by(ap_mac=ap_mac)\
-        .first_or_404()
-    location = Location.query.get(ap.location_id)
-    controller = WifiCtrl.query.get(ap.wifictrl_id)
-    ctrl_type = WifiType.query.get(controller.type_id)
-    print controller.url, controller.usr, controller.pwd
-    c = Controller(controller.url, controller.usr, controller.pwd,
-                   controller.port, 'v{}'.format(floor(ctrl_type.firmware)))
-    c.authorize_guest(device, 1, 500, 500, 500, ap_mac)
-#    c.restart_ap(ap_mac)c.authorize_guest(device, "1", ap_mac)
-    return ("Device {}, is connected to AP: {} at Location: {} and \
-            Controller: {} ver {} <br><br> {}"
-            .format(device, ap.name, location.name,
-                    controller.name, ctrl_type.firmware, ctrl_args))
+    if WifiAp.query.filter_by(ap_mac=ap_mac).first():
+        ap = WifiAp.query.filter_by(ap_mac=ap_mac).first_or_404()
+        location = Location.query.get(ap.location_id)
+        controller = WifiCtrl.query.get(ap.wifictrl_id)
+        ctrl_type = WifiType.query.get(controller.type_id)
+    else:
+        if (s == 's'):
+            controller = WifiCtrl.query.get(2)
+            location = Location.query.get(2)
+            ctrl_type = WifiType.query.get(controller.type_id)
+        elif (s == '0'):
+            controller = WifiCtrl.query.get(1)
+            location = Location.query.get(1)
+            ctrl_type = WifiType.query.get(controller.type_id)
+    c = ControllerV(
+                controller.url, controller.usr, controller.pwd,
+                controller.port, 'v{}'.format(int(ctrl_type.firmware))
+                )
+    c.authorize_guest(device, 2, 500, 500, 1, ap_mac)
+    print (
+           "===============================",
+           location,
+           ap
+           )
+    return redirect(url_for(
+                    'welcome',
+                    location_endpoint=location.endpoint,
+                    **request.args
+                    ))
 
 
-@app.route('/guest/', methods=["GET", "POST"])
-def portalv2():
-    ap_mac = request.args.get('ap')
-    device = request.args.get('id')
-    ctrl_args = request.query_string
-    ap = WifiAp.query.filter_by(ap_mac=ap_mac)\
-        .first_or_404()
-    location = Location.query.get(ap.location_id)
-    controller = WifiCtrl.query.get(ap.wifictrl_id)
-    ctrl_type = WifiType.query.get(controller.type_id)
-    print controller.url, controller.usr, controller.pwd
-    c = ControllerV2(controller.url, controller.usr, controller.pwd,
-                   controller.port, 'v{}'.format(floor(ctrl_type.firmware)))
-    c.authorize_guest(device, 1, 500, 500, 500, ap_mac)
-#    c.restart_ap(ap_mac)c.authorize_guest(device, "1", ap_mac)
-    return ("Device {}, is connected to AP: {} at Location: {} and \
-            Controller: {} ver {} <br><br> {}"
-            .format(device, ap.name, location.name,
-                    controller.name, ctrl_type.firmware, ctrl_args))
+@app.route('/welcome/<location_endpoint>/', methods=["GET", "POST"])
+def welcome(location_endpoint):
+    location = Location.query.filter_by(endpoint=location_endpoint).first()
+    if location:
+        return render_template(
+                            '/locations/admixer.html',
+                            location=location,
+                            request=request.args
+                                )
+    else:
+        print request.query_string
+        return ('recieved {}'.format(request.query_string))
+
+
 
 @app.errorhandler(404)
 def page_not_found(e):

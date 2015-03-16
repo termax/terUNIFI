@@ -44,6 +44,7 @@ class Location(db.Model):
     endpoint = db.Column(db.String(10))
     description = db.Column(db.String(300))
     admixer_id = db.Column(db.String)
+    admixer_z = db.Column(db.String)
     wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
                             nullable=False)
     wifi_aps = db.relationship('WifiAp', backref='location', lazy='dynamic')
