@@ -14,28 +14,6 @@ def index():
     return render_template('index.html')
 
 
-# Adding aps to db
-@app.route('/ctrl-add')
-def ctrl_add():
-    ctrlrs = []
-    company = Company.query.get(1)
-    for ctrl in company.wifictrls:
-        c = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
-        for ap in c.get_aps():
-            add_ap = WifiAp(
-                    name=ap['name'],
-                    ap_mac=ap['mac'],
-                    usite="default",
-                    wifictrl_id=ctrl.id,
-                    location_id=ctrl.locations[0].id
-                    )
-            db.session.add(add_ap)
-        ctrlrs.append(c)
-
-    db.session.commit()
-    return render_template('ctrl-view.html', ctrl_data=ctrlrs)
-
-
 # Testing Portals
 @app.route('/guest/', methods=["GET", "POST"],
            defaults={'s':'0', 'unifi_site':''})
@@ -57,15 +35,12 @@ def portal_unifi(s, unifi_site):
             controller = WifiCtrl.query.get(1)
             location = Location.query.get(1)
             ctrl_type = WifiType.query.get(controller.type_id)
-    c = ControllerV(
-                controller.url, controller.usr, controller.pwd,
-                controller.port, 'v{}'.format(int(ctrl_type.firmware))
-                )
+    c = controller.connect()
     c.authorize_guest(device, 2, 500, 500, 1, ap_mac)
     print (
            "===============================",
            location,
-           ap
+           ap_mac
            )
     return redirect(url_for(
                     'welcome',

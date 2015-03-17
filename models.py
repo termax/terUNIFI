@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from terUNIFI.unifi_control import ControllerV
 from terUNIFI import db
 from flask_login import UserMixin
 
@@ -74,6 +74,16 @@ class WifiCtrl(db.Model):
     def __repr__(self):
         return '<Name: %r>' % self.name
 
+    def connect(self):
+        ctrl = ControllerV(self.url, self.usr, self.pwd, self.port, self.ver)
+        return ctrl
+
+    @staticmethod
+    def connect_by_id(id):
+        ctrl = WifiCtrl.query.filter_by(id=id).first()
+        ctrl = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
+        return ctrl
+
 
 class WifiAp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,7 +91,7 @@ class WifiAp(db.Model):
     ap_mac = db.Column(db.String(20), unique=True)
     usite = db.Column(db.String(20))
     wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
-                             nullable=False)
+                            nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=False)
     events = db.relationship('Event', backref='wifi_ap',
@@ -89,6 +99,12 @@ class WifiAp(db.Model):
 
     def __repr__(self):
         return '<Name: %r>' % self.name
+
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    client_mac = db.Column(db.String(20))
+    events = db.relationship('Event', backref='client', lazy='dynamic')
+    ssid = db.Column(db.String(30))
 
 
 class Event(db.Model):
@@ -98,3 +114,4 @@ class Event(db.Model):
                       nullable=False)
     client_mac = db.Column(db.String(20))
     event_vars = db.Column(db.String)
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
