@@ -28,6 +28,14 @@ login_manager.init_app(app)
 # enable debugtoolbar
 toolbar = DebugToolbarExtension(app)
 
+from .guest import guest as guest_blueprint
+app.register_blueprint(guest_blueprint, url_prefix='/guest')
+
+from .welcome import welcome as welcome_blueprint
+app.register_blueprint(welcome_blueprint, url_prefix='/welcome')
+
+from .connect import connect as connect_blueprint
+app.register_blueprint(connect_blueprint, url_prefix='/connect')
 
 import models
 import views
