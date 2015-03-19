@@ -34,15 +34,16 @@
 <div class="body">
   <!--Admixer Placing-->
   <div class="reklama">
-    <div id="{{location.admixer_id}}"></div>
+    <div id="{{admixer.ad_id}}"></div>
     <script type="text/javascript">
         window.admixZArr = (window.admixZArr || []);
-        window.admixZArr.push({ z: '{{location.admixer_z}}', ph: '{{location.admixer_id}}'});
+        window.admixZArr.push({ z: '{{admixer.z_id}}', ph: '{{admixer.ad_id}}'});
     </script>
     </div>
 </div>
 <div class="footer">
-hello
+  <div> <img src="{{ url_for('static', filename='logo/free-lviv-ua-logo-contrast.png') }}" alt="free.lviv.ua Logo" height="30" width="30"> </div>
+  <div> free.lviv.ua WiFi NETWORK </div>
 </div>
 
 {% endblock %}

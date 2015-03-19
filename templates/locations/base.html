@@ -5,10 +5,16 @@ free.lviv.ua - {{ location_name }} Location
 {% endblock %}
 
 {% block styling %}
+<link href='{{ url_for('static', filename='fonts/Roboto_Condensed/RobotoCondensed-Regular.ttf') }}' rel='stylesheet' type='text/css'>
 <style>
 body{margin:0px;padding:0px;background:#fff;position:relative}
-div.footer {width:100%;height:20px;background:#EF3E3D;border:1px dotted black;padding:0px;position:fixed;bottom:0;z-index:1;}
-div.reklama {height:calc(100% - 20px);position:fixed; z-index: 1; top:0; bottom:0; left:0; right:0; text-align:center;}
+div.footer {
+  width:100%;height:30px;background:#EF3E3D;border:1px dotted black;
+  position:fixed;bottom:0;z-index:1;
+  text-align:center;font-family: 'Roboto Condensed', sans-serif;
+  padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px; vertical-align: middle;}
+div.footer div {display:inline-block;vertical-align: middle;}
+div.reklama {height:calc(100% - 30px);position:fixed; z-index: 1; top:0; bottom:0; left:0; right:0; text-align:center;}
 div.body {position:absolute;height:100%;width:100%;}
 </style>
 {% endblock %}

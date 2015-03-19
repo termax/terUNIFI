@@ -43,8 +43,7 @@ class Location(db.Model):
     name = db.Column(db.String(120))
     endpoint = db.Column(db.String(10))
     description = db.Column(db.String(300))
-    admixer_id = db.Column(db.String)
-    admixer_z = db.Column(db.String)
+    admixer_id = db.Column(db.Integer, db.ForeignKey('admixer.id'))
     wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
                             nullable=False)
     wifi_aps = db.relationship('WifiAp', backref='location', lazy='dynamic')
@@ -99,6 +98,16 @@ class WifiAp(db.Model):
 
     def __repr__(self):
         return '<Name: %r>' % self.name
+
+
+class Admixer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    ad_id = db.Column(db.String)
+    z_id = db.Column(db.String)
+    locations = db.relationship('Location', backref='admixer',
+                             lazy='dynamic')
+
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
