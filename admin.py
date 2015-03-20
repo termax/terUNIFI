@@ -1,6 +1,6 @@
 from terUNIFI import app, db
 from models import User, Company, WifiType, Location, WifiCtrl, WifiAp, Event,\
-    Admixer
+    Admixer, Device, Client, DeviceType
 from flask.ext.superadmin import Admin, BaseView, expose, model
 
 
@@ -58,6 +58,11 @@ class EventModel(model.ModelAdmin):
     list_display = ('id', 'date', 'ap_id')
 
 
+class DeviceModel(model.ModelAdmin):
+    session = db.session
+    list_display = ('id', 'device_mac')
+
+
 admin.add_view(MyView(name='Hello'))
 admin.register(Company, CompanyModel)
 admin.register(User, UserModel)
@@ -67,3 +72,4 @@ admin.register(WifiCtrl, WifiCtrlModel)
 admin.register(WifiAp, WifiApModel)
 admin.register(Event, EventModel)
 admin.register(Admixer, AdmixerModel)
+admin.register(Device, DeviceModel)

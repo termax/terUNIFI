@@ -105,22 +105,64 @@ class Admixer(db.Model):
     name = db.Column(db.String(120))
     ad_id = db.Column(db.String)
     z_id = db.Column(db.String)
-    locations = db.relationship('Location', backref='admixer',
-                             lazy='dynamic')
+    locations = db.relationship('Location', backref='admixer', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Name: %r>' % self.name
+
+
+class Device(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device_mac = db.Column(db.String(20), unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    last_seen = db.Column(db.DateTime, default=datetime.now)
+    device_type_id = db.Column(db.Integer, db.ForeignKey('device_type.id'))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+    events = db.relationship('Event', backref='device', lazy='dynamic')
+
+    @staticmethod
+    def get_or_create(mac):
+        try:
+            return Device.query.filter_by(device_mac=mac).one()
+        except:
+            return Device(device_mac=mac)
+
+    def __repr__(self):
+        return '<mac: %r>' % self.device_mac
+
 
 
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    client_mac = db.Column(db.String(20))
-    events = db.relationship('Event', backref='client', lazy='dynamic')
-    ssid = db.Column(db.String(30))
+    username = db.Column(db.String(80))
+    firstname = db.Column(db.String(80))
+    lastname = db.Column(db.String(80))
+    email = db.Column(db.String(80))
+    pin = db.Column(db.Integer)
+    pass_hash = db.Column(db.String)
+    devices = db.relationship('Device', backref='client', lazy='dynamic')
 
+    def __repr__(self):
+        return '<username: %r>' % self.username
+
+class DeviceType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    company = db.Column(db.String(120))
+    model = db.Column(db.String(120))
+    devices = db.relationship('Device', backref='device_type', lazy='dynamic')
+
+    def __repr__(self):
+        return '<name: %r>' % self.name
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=datetime.now)
     ap_id = db.Column(db.Integer, db.ForeignKey('wifi_ap.id'),
                       nullable=False)
-    client_mac = db.Column(db.String(20))
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    even_type = db.Column(db.String)
     event_vars = db.Column(db.String)
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+
+    def __repr__(self):
+        return '<Name: %r>' % self.name

@@ -1,7 +1,7 @@
 from flask import redirect, url_for, request
 from . import guest
 from .. import db
-from ..models import WifiAp, Location, WifiCtrl
+from ..models import WifiAp, Location, WifiCtrl, Device, Event
 
 
 # Testing Portals
@@ -13,6 +13,9 @@ from ..models import WifiAp, Location, WifiCtrl
 def portal_unifi(s, unifi_site):
     ap_mac = request.args.get('ap')
     device = request.args.get('id')
+    check_device = Device.get_or_create(device)
+    db.session.add(check_device)
+    db.session.commit()
     print '################', ap_mac
     print WifiAp.query.filter_by(ap_mac=ap_mac).first()
     if WifiAp.query.filter_by(ap_mac=ap_mac).first():
