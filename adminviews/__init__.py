@@ -1,12 +1,5 @@
-from models import User, Company, WifiType, Location, WifiCtrl, WifiAp, Event,\
-    Admixer, Device, Client, DeviceType
-from flask.ext.superadmin import Admin, BaseView, expose, model
-from . import db
-
-class MyView(BaseView):
-    @expose('/')
-    def index(self):
-        return self.render('admin-hello.html')
+from .. import db
+from flask.ext.superadmin import model
 
 
 class CompanyModel(model.ModelAdmin):
@@ -56,6 +49,3 @@ class EventModel(model.ModelAdmin):
 class DeviceModel(model.ModelAdmin):
     session = db.session
     list_display = ('id', 'device_mac')
-
-
-
