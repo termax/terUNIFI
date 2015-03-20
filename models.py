@@ -96,6 +96,10 @@ class WifiAp(db.Model):
     events = db.relationship('Event', backref='wifi_ap',
                              lazy='dynamic')
 
+    @staticmethod
+    def get_by_mac(mac):
+        return WifiAp.query.filter_by(ap_mac=mac).first()
+
     def __repr__(self):
         return '<Name: %r>' % self.name
 
@@ -121,11 +125,33 @@ class Device(db.Model):
     events = db.relationship('Event', backref='device', lazy='dynamic')
 
     @staticmethod
-    def get_or_create(mac):
-        try:
-            return Device.query.filter_by(device_mac=mac).one()
-        except:
-            return Device(device_mac=mac)
+    def get_or_create(mac, ap):
+        dev = Device.query.filter_by(device_mac=mac).first()
+        wifiap = WifiAp.get_by_mac(ap)
+        if dev is not None:
+            print '!!!!!!!!!!!!!!!!!!', dev.id
+            print '!!!!!!!!!!!!!!!!!!', wifiap.id
+            dev.last_seen = datetime.now
+            event = Event(
+                    ap_id=wifiap.id, device_id=dev.id,
+                    event_type="Device Returned"
+                            )
+            db.session.add(dev, event)
+            db.session.commit
+        else:
+            print '!!!!!!!!!!!!!!!!!!NEW'
+            dev = Device(device_mac=mac)
+            db.session.add(dev)
+            db.session.commit()
+            print dev.id
+            event = Event(
+                    ap_id=wifiap.id, device_id=dev.id,
+                    event_type="Device Created"
+                            )
+            db.session.add(event)
+            db.session.commit()
+        return dev
+
 
     def __repr__(self):
         return '<mac: %r>' % self.device_mac
@@ -161,7 +187,7 @@ class Event(db.Model):
     ap_id = db.Column(db.Integer, db.ForeignKey('wifi_ap.id'),
                       nullable=False)
     device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
-    even_type = db.Column(db.String)
+    event_type = db.Column(db.String)
     event_vars = db.Column(db.String)
 
     def __repr__(self):

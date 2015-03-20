@@ -13,9 +13,7 @@ from ..models import WifiAp, Location, WifiCtrl, Device, Event
 def portal_unifi(s, unifi_site):
     ap_mac = request.args.get('ap')
     device = request.args.get('id')
-    check_device = Device.get_or_create(device)
-    db.session.add(check_device)
-    db.session.commit()
+    check_device = Device.get_or_create(device, ap_mac)
     print '################', ap_mac
     print WifiAp.query.filter_by(ap_mac=ap_mac).first()
     if WifiAp.query.filter_by(ap_mac=ap_mac).first():
