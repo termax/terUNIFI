@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask.ext import wtf
 from flask_debugtoolbar import DebugToolbarExtension
 from flask.ext.superadmin import Admin, BaseView, expose, model
+from flask_redis import Redis
 
 
 from .config import config_by_name
@@ -18,6 +19,7 @@ db = SQLAlchemy()
 
 # Configure Admin
 admin = Admin()
+redis_store = Redis()
 
 
 # Configure authentification
@@ -37,6 +39,7 @@ def create_app(config_name):
     toolbar.init_app(app)
     login_manager.init_app(app)
     admin.init_app(app)
+    redis_store.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint, url_prefix='/')
@@ -68,5 +71,7 @@ def create_app(config_name):
     admin.register(Event, EventModel)
     admin.register(Admixer, AdmixerModel)
     admin.register(Device, DeviceModel)
+
+
 
     return app

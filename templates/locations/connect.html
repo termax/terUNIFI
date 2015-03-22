@@ -1,0 +1,26 @@
+{% extends "locations/base.html" %}
+<!--offline script-->
+{% block head %}
+<!--Enable JS-->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/offline-theme-chrome.css') }}" />
+{% endblock %}
+{% block content %}
+<!--offline script options-->
+<div id="mainContainer">
+  <a href="javascript:void(0)">Check connection!</a>
+</div>
+<script>
+var xhr = new XMLHttpRequest();
+var file = "http://www.kirupa.com/blank.png";
+var r = Math.round(Math.random() * 10000);
+xhr.open('HEAD', file + "?subins=" + r, false);
+alert(xhr.status);
+</script>
+<!--Footer-->
+<div class="footer">
+  <div style="float:left;padding:5px" ><i class="fa fa-phone-square"> </i> +380 63 450 24 77 </div>
+  <div> <img src="{{ url_for('static', filename='logo/free-lviv-ua-logo-contrast.png') }}" alt="free.lviv.ua Logo" height="30" width="30"> </div>
+  <div>free.lviv.ua WiFi NETWORK</div>
+  <div style="float:right;padding:5px"><i class="fa fa-envelope"> </i><a href="mailto:sales@free.lviv.ua"> sales@free.lviv.ua </a></div>
+</div>
+{% endblock %}

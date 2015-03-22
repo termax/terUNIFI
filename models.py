@@ -1,7 +1,7 @@
 from datetime import datetime
-from terUNIFI.unifi_control import ControllerV
 from terUNIFI import db
 from flask_login import UserMixin
+from unifi_control import ControllerV
 
 
 class User(db.Model, UserMixin):
@@ -38,6 +38,7 @@ class WifiType(db.Model):
     def __repr__(self):
         return '<Type: {}, v{}>'.format(self.made_by, self.firmware)
 
+
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
@@ -47,6 +48,10 @@ class Location(db.Model):
     wifictrl_id = db.Column(db.Integer, db.ForeignKey('wifi_ctrl.id'),
                             nullable=False)
     wifi_aps = db.relationship('WifiAp', backref='location', lazy='dynamic')
+
+    @staticmethod
+    def get_by_name(name):
+        return Location.query.filter_by(name=name).first()
 
     def __repr__(self):
         return '<Name: %r>' % self.name
@@ -70,18 +75,50 @@ class WifiCtrl(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'),
                            nullable=False)
 
-    def __repr__(self):
-        return '<Name: %r>' % self.name
-
     def connect(self):
-        ctrl = ControllerV(self.url, self.usr, self.pwd, self.port, self.ver)
-        return ctrl
+        return ControllerV(self.url, self.usr, self.pwd, self.port, self.ver)
 
     @staticmethod
     def connect_by_id(id):
         ctrl = WifiCtrl.query.filter_by(id=id).first()
         ctrl = ControllerV(ctrl.url, ctrl.usr, ctrl.pwd, ctrl.port, ctrl.ver)
         return ctrl
+
+    def update_aps(self):
+        c = self.connect()
+        for ap in c.get_aps():
+            ap_name = ap['name']
+            loc = ap['name'].split()[0]
+            db_ap = WifiAp.get_by_mac(ap['mac'])
+            if Location.get_by_name(loc) is None:
+                endpoint = loc.lower()
+                add_loc = Location(
+                    name=loc,
+                    endpoint=endpoint,
+                    wifictrl_id=self.id
+                                        )
+                db.session.add(add_loc)
+                db.session.commit()
+            if db_ap is None:
+                add_ap = WifiAp(
+                        name=ap['name'],
+                        ap_mac=ap['mac'],
+                        usite="default",
+                        wifictrl_id=self.id,
+                        location_id=Location.get_by_name(loc).id
+                                 )
+                db.session.add(add_ap)
+                db.session.commit()
+            elif (db_ap.name != ap_name):
+                db_ap.name = ap['name']
+                db_ap.wifictrl_id = self.id
+                db_ap.location_id = Location.get_by_name(loc).id
+                db.session.commit()
+
+        return True
+
+    def __repr__(self):
+        return '<Name: %r>' % self.name
 
 
 class WifiAp(db.Model):
@@ -107,9 +144,18 @@ class WifiAp(db.Model):
 class Admixer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
+    loc_name = db.Column(db.String(120))
     ad_id = db.Column(db.String)
     z_id = db.Column(db.String)
     locations = db.relationship('Location', backref='admixer', lazy='dynamic')
+
+    @staticmethod
+    def get_by_name(name):
+        return Admixer.query.filter_by(name=name).first()
+
+    @staticmethod
+    def get_by_loc_name(name):
+        return Admixer.query.filter_by(loc_name=name).first()
 
     def __repr__(self):
         return '<Name: %r>' % self.name
@@ -131,13 +177,14 @@ class Device(db.Model):
         if dev is not None:
             print '!!!!!!!!!!!!!!!!!!', dev.id
             print '!!!!!!!!!!!!!!!!!!', wifiap.id
-            dev.last_seen = datetime.now
+            dev.last_seen = datetime.now()
             event = Event(
                     ap_id=wifiap.id, device_id=dev.id,
                     event_type="Device Returned"
                             )
-            db.session.add(dev, event)
-            db.session.commit
+            db.session.add(dev)
+            db.session.add(event)
+            db.session.commit()
         else:
             print '!!!!!!!!!!!!!!!!!!NEW'
             dev = Device(device_mac=mac)
@@ -152,10 +199,8 @@ class Device(db.Model):
             db.session.commit()
         return dev
 
-
     def __repr__(self):
         return '<mac: %r>' % self.device_mac
-
 
 
 class Client(db.Model):
@@ -171,6 +216,7 @@ class Client(db.Model):
     def __repr__(self):
         return '<username: %r>' % self.username
 
+
 class DeviceType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
@@ -180,6 +226,7 @@ class DeviceType(db.Model):
 
     def __repr__(self):
         return '<name: %r>' % self.name
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -191,4 +238,4 @@ class Event(db.Model):
     event_vars = db.Column(db.String)
 
     def __repr__(self):
-        return '<Name: %r>' % self.name
+        return '<Event: %r>' % self.id

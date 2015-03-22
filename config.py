@@ -13,6 +13,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = \
         'sqlite:///' + os.path.join(basedir, 'terunifi.db')
+    REDIS_URL = 'redis://localhost:6379'
+    REDIS_DATABASE=5
 
 
 class TestingConfig(Config):
@@ -26,11 +28,11 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = \
-    'sqlite:///' + os.path.join(basedir, 'terunifi.db')
+     'sqlite:///' + os.path.join(basedir, 'terunifi.db')
 
 
 config_by_name = dict(
-    dev = DevelopmentConfig,
-    test = TestingConfig,
-    prod = ProductionConfig
+    dev=DevelopmentConfig,
+    test=TestingConfig,
+    prod=ProductionConfig
 )
