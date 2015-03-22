@@ -3,18 +3,14 @@
 {% block head %}
 <!--Enable JS-->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/offline-theme-chrome.css') }}" />
+<script type="text/javascript" src="{{ url_for('static', filename='js/offline.min.js') }}"></script>
+
 {% endblock %}
 {% block content %}
 <!--offline script options-->
-<div id="mainContainer">
-  <a href="javascript:void(0)">Check connection!</a>
-</div>
+
 <script>
-var xhr = new XMLHttpRequest();
-var file = "http://www.kirupa.com/blank.png";
-var r = Math.round(Math.random() * 10000);
-xhr.open('HEAD', file + "?subins=" + r, false);
-alert(xhr.status);
+Offline.options = {active: 'image', checks: {image: {url: 'http://www.google.com.ua/images/srpr/logo11w.png'}}}
 </script>
 <!--Footer-->
 <div class="footer">
