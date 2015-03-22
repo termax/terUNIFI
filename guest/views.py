@@ -46,7 +46,7 @@ def portal_unifi(s, unifi_site):
 
     # preathorizing client for 2 minutes
     c = controller.connect()
-    c.authorize_guest(dev_mac, 2, 500, 500, 5, ap_mac)
+#    c.authorize_guest(dev_mac, 2, 500, 500, 5, ap_mac)
     print (
            "===============================",
            location,
