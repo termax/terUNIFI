@@ -40,7 +40,7 @@
 }
 /* line 42, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"]:before {
-  content: "Connection lost. Reconnecting in " attr(data-retry-in-value) " seconds...";
+  content: "No connection yet. Reconnecting in " attr(data-retry-in-value) " seconds...";
 }
 @media (max-width: 568px) {
   /* line 42, ../sass/_content.sass */
@@ -50,7 +50,7 @@
 }
 /* line 50, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"][data-retry-in-value="1"]:before {
-  content: "Connection lost. Reconnecting in " attr(data-retry-in-value) " second...";
+  content: "No connection yet. Reconnecting in " attr(data-retry-in-value) " second...";
 }
 @media (max-width: 568px) {
   /* line 50, ../sass/_content.sass */
@@ -60,7 +60,7 @@
 }
 /* line 58, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="minute"]:before {
-  content: "Connection lost. Reconnecting in " attr(data-retry-in-value) " minutes...";
+  content: "No connection yet. Reconnecting in " attr(data-retry-in-value) " minutes...";
 }
 @media (max-width: 568px) {
   /* line 58, ../sass/_content.sass */
